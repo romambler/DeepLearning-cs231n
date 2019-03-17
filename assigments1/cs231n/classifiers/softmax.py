@@ -1,6 +1,10 @@
 import numpy as np
 from random import shuffle
 
+def softmax(x):
+    expx = np.exp(x)
+    return expx / np.sum(expx)
+
 def softmax_loss_naive(W, X, y, reg):
   """
   Softmax loss function, naive implementation (with loops)
@@ -29,7 +33,29 @@ def softmax_loss_naive(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  num_train = X.shape[0]
+  num_classes = W.shape[1]
+  loss = 0.0
+  for i in range(num_train):
+    dot = X[i].dot(W)
+    soft_max = softmax(dot)
+    component = dot[y[i]]
+    exp1 = np.exp(component)
+    func = exp1 / np.sum(dot)
+    print(func)
+    print(np.log(func))
+    loss -= np.log(func)
+    for j in range(num_classes):
+      if j == y[i]:
+        dW[:,j] += (soft_max[j] - 1) *X[i] 
+      else: 
+        dW[:,j] += soft_max[j] *X[i] 
+
+
+  loss = loss / num_train
+  loss += reg * np.sum(W * W)
+  dW += 2+reg*W
+
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
