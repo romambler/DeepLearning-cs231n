@@ -2,8 +2,8 @@ import numpy as np
 from random import shuffle
 
 def softmax(x):
-    expx = np.exp(x)
-    return expx / np.sum(expx)
+    exp = np.exp(x)
+    return exp / np.sum(exp)
 
 def softmax_loss_naive(W, X, y, reg):
   """
@@ -39,23 +39,17 @@ def softmax_loss_naive(W, X, y, reg):
   for i in range(num_train):
     dot = X[i].dot(W)
     soft_max = softmax(dot)
-    component = dot[y[i]]
-    exp1 = np.exp(component)
-    func = exp1 / np.sum(dot)
-    print(func)
-    print(np.log(func))
-    loss -= np.log(func)
+    loss -= np.log(soft_max[y[i]])
     for j in range(num_classes):
       if j == y[i]:
         dW[:,j] += (soft_max[j] - 1) *X[i] 
       else: 
         dW[:,j] += soft_max[j] *X[i] 
 
-
   loss = loss / num_train
   loss += reg * np.sum(W * W)
+  dW /= num_train
   dW += 2+reg*W
-
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
@@ -79,7 +73,19 @@ def softmax_loss_vectorized(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  num_train = X.shape[0]
+  dot = X.dot(W)
+  exp_dot = np.exp(dot)
+  soft_max = exp_dot / np.sum(exp_dot, axis=1,keepdims=True)
+  loss = -np.log(soft_max[range(num_train), y])
+  loss = np.sum(loss)
+  soft_max[range(num_train), y] -= 1
+
+  loss = loss / num_train
+  loss += reg * np.sum(W * W)
+  dW = np.dot(X.T, soft_max)
+  dW /= num_train
+  dW += 2+reg*W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
